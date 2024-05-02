@@ -31,7 +31,7 @@ const defaultOptions = {
   },
 };
 
-function GenerateBarGraph({ options = defaultOptions, data }) {
+function GenerateBarGraph({ options = defaultOptions, data = {} }) {
   return <Bar options={options} data={data} />;
 }
 

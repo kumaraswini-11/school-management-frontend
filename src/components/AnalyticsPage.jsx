@@ -10,17 +10,6 @@ const AnalyticsPage = () => {
   const [income, setIncome] = useState(0);
   const [error, setError] = useState("");
 
-  const data = {
-    labels: ["income", "expenses"],
-    datasets: [
-      {
-        label: "Income",
-        data: [income, expenses],
-        backgroundColor: ["rgba(255, 99, 132, 0.5)", "rgba(54, 162, 235, 0.5)"],
-      },
-    ],
-  };
-
   useEffect(() => {
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth() + 1;
@@ -78,61 +67,59 @@ const AnalyticsPage = () => {
 
   return (
     <section className="flex flex-col md:flex-row sm:justify-between gap-4 mt-8 p-4 sm:p-8 bg-white shadow-lg rounded-md">
-      <div className="flex flex-col justify-between md:w-full">
-        <div>
-          <h2 className="text-2xl font-bold mb-4 text-start">Analytics Page</h2>
-          <div className="mb-4 flex justify-start">
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={view === "yearly"}
-                onChange={toggleView}
-                className="mr-2"
-              />
-              Yearly View
-            </label>
-          </div>
-          <div className="flex flex-col sm:flex-row sm:gap-4 sm:items-center sm:w-4/5 gap-4">
-            {view === "monthly" && (
-              <div className="mb-4">
-                <label className="flex items-center">
-                  Select Month:
-                  <select
-                    value={selectedMonth}
-                    onChange={handleMonthChange}
-                    className="ml-2 border rounded-md p-1"
-                  >
-                    {months.map((month, index) => (
-                      <option key={month} value={index + 1}>
-                        {month}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-            )}
+      <div className="flex flex-col md:w-full">
+        <h2 className="text-2xl font-bold mb-4 text-start">Analytics Page</h2>
+        <div className="mb-4 flex justify-start">
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              checked={view === "yearly"}
+              onChange={toggleView}
+              className="mr-2"
+            />
+            Yearly View
+          </label>
+        </div>
+        <div className="flex flex-col sm:flex-row sm:gap-4 sm:items-center sm:w-4/5 gap-4">
+          {view === "monthly" && (
             <div className="mb-4">
               <label className="flex items-center">
-                Select Year:
+                Select Month:
                 <select
-                  value={selectedYear}
-                  onChange={handleYearChange}
+                  value={selectedMonth}
+                  onChange={handleMonthChange}
                   className="ml-2 border rounded-md p-1"
                 >
-                  {years.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
+                  {months.map((month, index) => (
+                    <option key={month} value={index + 1}>
+                      {month}
                     </option>
                   ))}
                 </select>
               </label>
             </div>
+          )}
+          <div className="mb-4">
+            <label className="flex items-center">
+              Select Year:
+              <select
+                value={selectedYear}
+                onChange={handleYearChange}
+                className="ml-2 border rounded-md p-1"
+              >
+                {years.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
-          {error && <p className="text-red-500">{error}</p>}
-          <div>
-            <h3 className="text-xl font-bold">Expenses: {expenses}</h3>
-            <h3 className="text-xl font-bold">Income: {income}</h3>
-          </div>
+        </div>
+        {error && <p className="text-red-500">{error}</p>}
+        <div>
+          <h3 className="text-xl font-bold">Expenses: {expenses}</h3>
+          <h3 className="text-xl font-bold">Income: {income}</h3>
         </div>
       </div>
       <div className="md:w-full">

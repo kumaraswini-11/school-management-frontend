@@ -13,83 +13,73 @@ function AddEditOverlay({
 }) {
   const [formData, setFormData] = useState(initialFormData);
   const [errors, setErrors] = useState({});
-  const [selectedStudents, setSelectedStudents] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/api/v1/${fromPage}/${itemId}`
-        );
-        console.log(response);
+      if (itemId) {
+        try {
+          const response = await axios.get(
+            `${import.meta.env.VITE_BASE_URL}/api/v1/${fromPage}/${itemId}`
+          );
+          const fetchedData = response.data;
 
-        let newInitialFormData = null;
-        if (fromPage.includes("student")) {
-          const student = response.data.student;
-          newInitialFormData = {
-            studentName: student.name || "",
-            gender: student.gender || "",
-            dob: student.dob
-              ? new Date(student.dob).toISOString().slice(0, 10)
-              : "",
-            email: student.contactDetails || "",
-            paid: student.feesPaid || 0,
-            class: initialFormData.class,
-          };
-        } else if (fromPage.includes("teacher")) {
-          const teacher = response.data.teacher;
-          newInitialFormData = {
-            name: teacher.name || "",
-            gender: teacher.gender || "",
-            dob: teacher.dob
-              ? new Date(teacher.dob).toISOString().slice(0, 10)
-              : "",
-            email: teacher.contactDetails || "",
-            salary: teacher.salary || 0,
-            class: initialFormData.class,
-          };
-        } else {
-          const classes = response.data.classes;
-          setSelectedStudents(classes?.students ?? []);
-
-          newInitialFormData = {
-            className: classes.className || "",
-            classFee: classes.studentFees || "",
-            maxLimit: classes.limitStudents || 0,
-            teacherAssigned: classes.teacher || initialFormData.teacherAssigned,
-            students: initialFormData.students,
-          };
+          if (fromPage.includes("student")) {
+            const student = fetchedData.student;
+            setFormData({
+              ...initialFormData,
+              studentName: student.name || "",
+              gender: student.gender || "",
+              dob: student.dob
+                ? new Date(student.dob).toISOString().slice(0, 10)
+                : "",
+              email: student.contactDetails || "",
+              paid: student.feesPaid || 0,
+            });
+          } else if (fromPage.includes("teacher")) {
+            const teacher = fetchedData.teacher;
+            setFormData({
+              ...initialFormData,
+              name: teacher.name || "",
+              gender: teacher.gender || "",
+              dob: teacher.dob
+                ? new Date(teacher.dob).toISOString().slice(0, 10)
+                : "",
+              email: teacher.contactDetails || "",
+              salary: teacher.salary || 0,
+            });
+          } else {
+            const classes = fetchedData.classes;
+            setFormData({
+              ...initialFormData,
+              className: classes.className || "",
+              classFee: classes.studentFees || "",
+              maxLimit: classes.limitStudents || 0,
+              teacherAssigned:
+                classes.teacher || initialFormData.teacherAssigned,
+            });
+          }
+        } catch (error) {
+          console.log(error);
         }
-
-        setFormData(newInitialFormData);
-      } catch (error) {
-        console.log(error);
       }
     };
 
     fetchData();
-  }, [itemId]);
+  }, [itemId, fromPage, initialFormData]);
 
   const handleChange = (e, field) => {
-    const tempStudents =
-      field.name.includes("student") &&
-      fromPage.includes("class") &&
-      field.type === "select"
+    const value =
+      field.type === "select" && field.name.includes("student")
         ? e.map((item) => item.value)
-        : "";
-
-    const value = field.name.includes("student")
-      ? tempStudents
-      : field.type === "select"
-        ? e.value
-        : e.target.value;
+        : field.type === "select"
+          ? e.value
+          : e.target.value;
 
     setFormData({
       ...formData,
       [field.name]: value,
     });
 
-    // Clear error message when user starts typing in the field
     setErrors({
       ...errors,
       [field.name]: "",
@@ -101,22 +91,30 @@ function AddEditOverlay({
     onCancel();
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Perform form validation
+  const validateForm = () => {
     const validationErrors = {};
     Object.keys(formData).forEach((key) => {
-      if (!formData[key] && key !== "paid" && key !== "students") {
-        validationErrors[key] = `${key} is required`;
+      if (!formData[key] && key !== "paid") {
+        validationErrors[key] =
+          `${key.charAt(0).toUpperCase() + key.slice(1)} is required`;
       }
     });
+    return validationErrors;
+  };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
     } else {
       setErrors({});
-      onSubmit(formData);
-      setFormData(initialFormData);
+      try {
+        await onSubmit(formData);
+        setFormData(initialFormData);
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
@@ -135,7 +133,6 @@ function AddEditOverlay({
         <div className="inline-block align-middle bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full">
           <form onSubmit={handleSubmit}>
             <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-              {/* Form inputs */}
               {inputFields.map((field, index) => (
                 <div key={index} className="mb-4">
                   <label
@@ -152,37 +149,16 @@ function AddEditOverlay({
                       value={field.options.find(
                         (option) => option.value === formData[field.name]
                       )}
-                      defaultValue={
-                        selectedStudents && itemId
-                          ? initialFormData?.students.find(
-                              (option) =>
-                                option.value === selectedStudents.value
-                            )
-                          : ""
-                      }
                       onChange={(selectedOption) =>
-                        handleChange(
-                          // selectedStudents
-                          //   // ? [...selectedOption]
-                          //   :
-                          selectedOption,
-                          field
-                        )
+                        handleChange(selectedOption, field)
                       }
                       placeholder={field.placeholder}
-                      className={`mt-1 sm:text-md border-gray-500 border-1 ${fromPage.includes("class") ? "basic-multi-select" : ""} ${
+                      className={`mt-1 sm:text-md border-gray-500 border-1 ${
                         errors[field.name] ? " border-red-500" : ""
                       }`}
-                      isMulti={
-                        selectedStudents &&
-                        fromPage.includes("class") &&
-                        field.name.includes("student")
-                      }
-                      classNamePrefix={
-                        selectedStudents &&
-                        fromPage.includes("class") &&
-                        "select"
-                      }
+                      isMulti={field.name.includes("student")}
+                      maxMenuHeight={80}
+                      menuPlacement="auto"
                     />
                   ) : (
                     <input
@@ -194,7 +170,7 @@ function AddEditOverlay({
                         handleChange(selectedOption, field)
                       }
                       placeholder={field.placeholder}
-                      className={`mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-md border-gray-500 border-1 rounded-md p-3 ${
+                      className={`mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-md border-gray-500 border-1 rounded-md p-2 ${
                         errors[field.name] ? "border-red-500" : ""
                       }`}
                     />

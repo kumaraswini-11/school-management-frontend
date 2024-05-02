@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { GenericManagementComponent } from "../components";
 
@@ -22,8 +22,10 @@ function StudentManagementPage() {
       const studentsUrl = `${import.meta.env.VITE_BASE_URL}/api/v1/students`;
       const classesUrl = `${import.meta.env.VITE_BASE_URL}/api/v1/all-classes-name`;
 
-      const studentsResponse = await axios.get(studentsUrl, { params });
-      const classesResponse = await axios.get(classesUrl);
+      const [studentsResponse, classesResponse] = await Promise.all([
+        axios.get(studentsUrl, { params }),
+        axios.get(classesUrl),
+      ]);
 
       setAllClasses(classesResponse.data.classes);
 
@@ -32,9 +34,13 @@ function StudentManagementPage() {
         totalPages: studentsResponse.data.totalPages,
       };
     } catch (error) {
-      throw new Error("Error fetching data");
+      console.log(error);
     }
   };
+
+  useEffect(() => {
+    fetchDataFunction();
+  }, []);
 
   const initialFormData = {
     studentName: "",
@@ -93,16 +99,14 @@ function StudentManagementPage() {
   ];
 
   return (
-    <>
-      <GenericManagementComponent
-        pageTitle={pageTitle}
-        columns={columns}
-        fetchDataFunction={fetchDataFunction}
-        fromPage="students"
-        initialFormData={initialFormData}
-        inputFields={inputFields}
-      />
-    </>
+    <GenericManagementComponent
+      pageTitle={pageTitle}
+      columns={columns}
+      fetchDataFunction={fetchDataFunction}
+      fromPage="students"
+      initialFormData={initialFormData}
+      inputFields={inputFields}
+    />
   );
 }
 

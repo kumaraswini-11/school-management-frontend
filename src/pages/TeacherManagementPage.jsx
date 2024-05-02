@@ -1,13 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { AnalyticsPage, GenericManagementComponent } from "../components";
 
 function TeacherManagementPage() {
   const [allClasses, setAllClasses] = useState([]);
-
   const pageTitle = "Teacher Dashboard";
 
-  // Define columns for the table
   const columns = [
     { key: "_id", title: "Serial No." },
     { key: "name", title: "Teacher Name" },
@@ -18,13 +16,19 @@ function TeacherManagementPage() {
     { key: "assignedClass", title: "Assigned Classes" },
   ];
 
-  const fetchDataFunction = async (params) => {
-    const teachersUrl = `${import.meta.env.VITE_BASE_URL}/api/v1/teachers`;
-    const classesUrl = `${import.meta.env.VITE_BASE_URL}/api/v1/all-classes-name`;
+  useEffect(() => {
+    fetchData();
+  }, []);
 
+  const fetchData = async () => {
     try {
-      const teachersResponse = await axios.get(teachersUrl, { params });
-      const classesResponse = await axios.get(classesUrl);
+      const teachersUrl = `${import.meta.env.VITE_BASE_URL}/api/v1/teachers`;
+      const classesUrl = `${import.meta.env.VITE_BASE_URL}/api/v1/all-classes-name`;
+
+      const [teachersResponse, classesResponse] = await Promise.all([
+        axios.get(teachersUrl),
+        axios.get(classesUrl),
+      ]);
 
       setAllClasses(classesResponse.data.classes);
 
@@ -98,12 +102,11 @@ function TeacherManagementPage() {
       <GenericManagementComponent
         pageTitle={pageTitle}
         columns={columns}
-        fetchDataFunction={fetchDataFunction}
+        fetchDataFunction={fetchData}
         fromPage="teachers"
         initialFormData={initialFormData}
         inputFields={inputFields}
       />
-
       <AnalyticsPage />
     </>
   );

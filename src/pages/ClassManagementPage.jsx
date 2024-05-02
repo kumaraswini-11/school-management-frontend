@@ -7,7 +7,6 @@ function ClassManagementPage() {
   const [allStudent, setAllStudent] = useState([]);
 
   // Define page title
-
   const pageTitle = "Classes Dashboard";
 
   // Define columns for the table
@@ -21,14 +20,17 @@ function ClassManagementPage() {
 
   const fetchDataFunction = async (params) => {
     try {
-      const baseUrl = ` ${import.meta.env.VITE_BASE_URL}/api/v1`;
+      const baseUrl = `${import.meta.env.VITE_BASE_URL}/api/v1`;
       const classUrl = `${baseUrl}/classes`;
       const teacherUrl = `${baseUrl}/all-teachers-name`;
       const studentUrl = `${baseUrl}/all-student-name`;
 
-      const teacherResponse = await axios.get(teacherUrl);
-      const studentResponse = await axios.get(studentUrl);
-      const classResponse = await axios.get(classUrl, { params });
+      const [teacherResponse, studentResponse, classResponse] =
+        await Promise.all([
+          axios.get(teacherUrl),
+          axios.get(studentUrl),
+          axios.get(classUrl, { params }),
+        ]);
 
       setAllTeacher(teacherResponse.data.teachers);
       setAllStudent(studentResponse.data.students);
@@ -38,7 +40,9 @@ function ClassManagementPage() {
         totalPages: classResponse.data.totalPages,
       };
     } catch (error) {
-      throw new Error("Error fetching data");
+      console.error("Error fetching data:", error);
+      // Handle error gracefully, e.g., set error state and display error message
+      return { error: "Error fetching data. Please try again later." };
     }
   };
 
@@ -74,7 +78,7 @@ function ClassManagementPage() {
       name: "teacherAssigned",
       type: "select",
       placeholder: "Select teacher",
-      options: allTeacher?.map((item) => ({
+      options: allTeacher.map((item) => ({
         value: item._id,
         label: item.name,
       })),
@@ -84,7 +88,7 @@ function ClassManagementPage() {
       name: "students",
       type: "select",
       placeholder: "Select Students",
-      options: allStudent?.map((item) => ({
+      options: allStudent.map((item) => ({
         value: item._id,
         label: item.name,
       })),

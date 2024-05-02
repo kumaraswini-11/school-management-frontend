@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 
@@ -26,30 +26,30 @@ const GenericTable = ({
     return searchValue;
   }, [searchValue]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
 
-      try {
-        const response = await fetchDataFunction({
-          page: currentPage,
-          sortBy,
-          sortOrder,
-          searchValue: debouncedSearchValue,
-        });
+    try {
+      const response = await fetchDataFunction({
+        page: currentPage,
+        sortBy,
+        sortOrder,
+        searchValue: debouncedSearchValue,
+      });
 
-        setData(response.data);
-        setTotalPages(response.totalPages);
-      } catch (error) {
-        setError(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+      setData(response.data);
+      setTotalPages(response.totalPages);
+    } catch (error) {
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
   }, [currentPage, sortBy, sortOrder, debouncedSearchValue]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleSearch = (e) => {
     setSearchValue(e.target.value);
@@ -57,7 +57,6 @@ const GenericTable = ({
   };
 
   const handleSort = (columnName) => {
-    // If sorting the first column, return without sorting
     if (columnName === columns[0].key) {
       return;
     }
@@ -161,12 +160,14 @@ const GenericTable = ({
                     <button
                       onClick={() => handleAction(row._id, "edit")}
                       className="text-blue-500 mr-2"
+                      title="Edit"
                     >
                       <FiEdit />
                     </button>
                     <button
                       onClick={() => handleAction(row._id, "delete")}
                       className="text-red-500"
+                      title="Delete"
                     >
                       <FiTrash2 />
                     </button>
@@ -176,7 +177,6 @@ const GenericTable = ({
             </tbody>
           </table>
 
-          {/* Pagination Details */}
           <div className="flex justify-between items-center mt-4">
             <div>
               <p className="text-sm text-gray-600">{`Showing ${currentPage} of ${totalPages}`}</p>
@@ -186,11 +186,7 @@ const GenericTable = ({
                 onClick={() =>
                   currentPage > 1 && handlePagination(currentPage - 1)
                 }
-                className={`px-3 py-1 border rounded mr-2 ${
-                  currentPage === 1
-                    ? "bg-gray-200 cursor-not-allowed"
-                    : "hover:bg-gray-200"
-                }`}
+                className={`px-3 py-1 border rounded mr-2 ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"}`}
                 disabled={currentPage === 1 || loading}
               >
                 Prev
@@ -200,9 +196,7 @@ const GenericTable = ({
                   <button
                     key={page}
                     onClick={() => handlePagination(page)}
-                    className={`px-3 py-1 border rounded mr-2 hover:bg-gray-200 ${
-                      page === currentPage ? "bg-gray-200" : ""
-                    }`}
+                    className={`px-3 py-1 border rounded mr-2 ${page === currentPage ? "bg-gray-200" : "hover:bg-gray-200"}`}
                     disabled={loading}
                   >
                     {page}
@@ -213,11 +207,7 @@ const GenericTable = ({
                 onClick={() =>
                   currentPage < totalPages && handlePagination(currentPage + 1)
                 }
-                className={`px-3 py-1 border rounded mr-2 ${
-                  currentPage === totalPages
-                    ? "bg-gray-200 cursor-not-allowed"
-                    : "hover:bg-gray-200"
-                }`}
+                className={`px-3 py-1 border rounded mr-2 ${currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"}`}
                 disabled={currentPage === totalPages || loading}
               >
                 Next

@@ -30,6 +30,7 @@ function ClassGraph() {
         const response = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/api/v1/classes/graph/${classId}`
         );
+
         setGraphData(response.data);
       } catch (error) {
         setError("Error fetching data. Please try again later.");

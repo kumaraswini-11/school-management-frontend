@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { GenericTable, DeleteConfirmationOverlay, AddEditOverlay } from ".";
@@ -16,6 +16,10 @@ function GenericManagementComponent({
   const [itemIdToDelete, setItemIdToDelete] = useState(null);
   const [isAddEditOverlayVisible, setAddEditOverlayVisible] = useState(false);
   const [editItemId, setEditItemId] = useState(null);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleAddEditClick = (itemId) => {
     setEditItemId(itemId);
@@ -36,39 +40,40 @@ function GenericManagementComponent({
       await axios.delete(
         `${import.meta.env.VITE_BASE_URL}/api/v1/${fromPage}/${itemIdToDelete}`
       );
-      setDeleteConfirmationVisible(false);
       toast.success("Item Deleted Successfully.");
-      fetchDataFunction();
+      fetchData();
     } catch (error) {
       toast.error("An error occurred while deleting. Please try again.");
+    } finally {
+      setDeleteConfirmationVisible(false);
     }
   };
 
   const handleAddEditFormSubmit = async (formData) => {
     try {
-      if (editItemId) {
-        // For editing an existing item
-        await axios.put(
-          `${import.meta.env.VITE_BASE_URL}/api/v1/${fromPage}/${editItemId}`,
-          formData
-        );
-        toast.success("Item Updated Successfully.");
-      } else {
-        // For adding a new item
-        await axios.post(
-          `${import.meta.env.VITE_BASE_URL}/api/v1/${fromPage}`,
-          formData
-        );
-        toast.success("Item Added Successfully.");
-      }
+      const url = editItemId
+        ? `${import.meta.env.VITE_BASE_URL}/api/v1/${fromPage}/${editItemId}`
+        : `${import.meta.env.VITE_BASE_URL}/api/v1/${fromPage}`;
 
-      fetchDataFunction();
+      const method = editItemId ? "put" : "post";
+
+      await axios[method](url, formData);
+
+      const message = editItemId
+        ? "Item Updated Successfully."
+        : "Item Added Successfully.";
+      toast.success(message);
+      fetchData();
     } catch (error) {
       toast.error("An error occurred. Please try again.");
     } finally {
       setEditItemId(null);
       setAddEditOverlayVisible(false);
     }
+  };
+
+  const fetchData = async () => {
+    const data = await fetchDataFunction();
   };
 
   return (

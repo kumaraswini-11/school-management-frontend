@@ -36,6 +36,7 @@ function DeleteConfirmationOverlay({ onCancel, onConfirmDelete }) {
               onClick={onConfirmDelete}
               type="button"
               className="w-full inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
+              aria-label="Delete"
             >
               Delete
             </button>
@@ -43,6 +44,7 @@ function DeleteConfirmationOverlay({ onCancel, onConfirmDelete }) {
               onClick={onCancel}
               type="button"
               className="mt-3 w-full inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
+              aria-label="Cancel"
             >
               Cancel
             </button>
