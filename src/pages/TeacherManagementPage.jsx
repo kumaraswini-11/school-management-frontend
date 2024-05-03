@@ -13,7 +13,7 @@ function TeacherManagementPage() {
     { key: "dob", title: "Date Of Birth" },
     { key: "contactDetails", title: "Contact Details" },
     { key: "salary", title: "Salary" },
-    { key: "assignedClass", title: "Assigned Classes" },
+    { key: "tassignedClass", title: "Assigned Class" },
   ];
 
   useEffect(() => {

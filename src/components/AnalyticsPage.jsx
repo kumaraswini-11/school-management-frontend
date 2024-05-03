@@ -10,6 +10,17 @@ const AnalyticsPage = () => {
   const [income, setIncome] = useState(0);
   const [error, setError] = useState("");
 
+  const data = {
+    labels: ["income", "expenses"],
+    datasets: [
+      {
+        label: "Income",
+        data: [income, expenses],
+        backgroundColor: ["rgba(255, 99, 132, 0.5)", "rgba(54, 162, 235, 0.5)"],
+      },
+    ],
+  };
+
   useEffect(() => {
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth() + 1;

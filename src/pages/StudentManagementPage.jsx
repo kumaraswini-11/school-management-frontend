@@ -15,6 +15,7 @@ function StudentManagementPage() {
     { key: "dob", title: "Date Of Birth" },
     { key: "contactDetails", title: "Contact Details" },
     { key: "feesPaid", title: "Paid Amount" },
+    { key: "sassignedClass", title: "Class" },
   ];
 
   const fetchDataFunction = async (params) => {

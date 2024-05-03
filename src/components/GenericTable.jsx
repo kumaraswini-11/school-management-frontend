@@ -153,7 +153,10 @@ const GenericTable = ({
                         ? index + 1
                         : column.key === "dob" && fromPage !== "classes"
                           ? new Date(row[column.key]).toLocaleDateString()
-                          : row[column.key]}
+                          : column.key.includes("sassignedClass") &&
+                              fromPage.includes("student")
+                            ? [row[column.key]]?.map((item) => item?.className)
+                            : row[column.key]}
                     </td>
                   ))}
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
