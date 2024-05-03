@@ -5,7 +5,8 @@ import {
   RouterProvider,
   createBrowserRouter,
 } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { PageLoader, ClassGraph } from "./components";
 import "./index.css";
 
@@ -52,6 +53,6 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById("root")).render(
   <Suspense fallback={<PageLoader />}>
     <RouterProvider router={router} />
-    <ToastContainer />
+    <ToastContainer></ToastContainer>
   </Suspense>
 );
