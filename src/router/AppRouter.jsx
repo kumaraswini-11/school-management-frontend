@@ -1,5 +1,9 @@
 import React, { Suspense, lazy } from "react";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  Navigate,
+  RouterProvider,
+} from "react-router-dom";
 import PageLoader from "../components/PageLoader";
 import Layout from "../components/Layout/Layout";
 
@@ -16,6 +20,10 @@ const router = createBrowserRouter([
     path: "/",
     element: <Layout />,
     children: [
+      {
+        index: true,
+        element: <Navigate to="classes" replace />,
+      },
       {
         path: "classes",
         element: <Classes />,
