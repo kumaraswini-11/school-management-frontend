@@ -1,15 +1,15 @@
 import React from "react";
 
-function PageLoader({ size = 12, color = "gray" }) {
+const PageLoader = () => {
   return (
-    <div className="flex items-center justify-center h-screen">
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-indigo-100 to-indigo-50">
       <div
-        className={`animate-spin rounded-full h-${size} w-${size} border-b-4 border-${color}-900`}
+        className="animate-spin rounded-full h-12 w-12 border-t-4 border-purple-500 border-solid"
         role="status"
         aria-label="Loading"
       ></div>
     </div>
   );
-}
+};
 
 export default PageLoader;

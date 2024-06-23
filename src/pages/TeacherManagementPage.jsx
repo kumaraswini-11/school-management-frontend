@@ -1,115 +1,153 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { AnalyticsPage, GenericManagementComponent } from "../components";
+import toast from "react-hot-toast";
+import FormComponent from "../components/FormComponent";
+import TableComponent from "../components/TableComponent";
+import { useDataContext } from "../context/DataContext";
 
-function TeacherManagementPage() {
-  const [allClasses, setAllClasses] = useState([]);
-  const pageTitle = "Teacher Dashboard";
+const teacherSchema = [
+  { label: "Name", name: "name", type: "text" },
+  { label: "Date of Birth", name: "dob", type: "date" },
+  { label: "Gender", name: "gender", type: "select" },
+  { label: "Email", name: "contactDetails.email", type: "email" },
+  { label: "Phone", name: "contactDetails.phone", type: "text" },
+  { label: "Salary", name: "salary", type: "number" },
+  { label: "Classes", name: "classes", type: "select-multiple" },
+];
 
-  const columns = [
-    { key: "_id", title: "Serial No." },
-    { key: "name", title: "Teacher Name" },
-    { key: "gender", title: "Sex" },
-    { key: "dob", title: "Date Of Birth" },
-    { key: "contactDetails", title: "Contact Details" },
-    { key: "salary", title: "Salary" },
-    { key: "tassignedClass", title: "Assigned Class" },
-  ];
+const TeacherManagement = () => {
+  const { classes, baseURL, recordsPerPage } = useDataContext();
+  const [teachers, setTeachers] = useState([]);
+  const [currentTeacher, setCurrentTeacher] = useState(null);
+  const [isFormVisible, setIsFormVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const fetchTeachers = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get(`${baseURL}/teachers`, {
+        params: { page: currentPage, limit: recordsPerPage },
+      });
+
+      setTeachers(response.data.data);
+      setTotalPages(response.data.pagination.totalPages);
+    } catch (error) {
+      console.error("Error fetching teachers:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [currentPage, recordsPerPage]);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchTeachers();
+  }, [fetchTeachers]);
 
-  const fetchData = async () => {
-    try {
-      const teachersUrl = `${import.meta.env.VITE_BASE_URL}/api/v1/teachers`;
-      const classesUrl = `${import.meta.env.VITE_BASE_URL}/api/v1/all-classes-name`;
+  const handleAddTeacher = () => {
+    setCurrentTeacher(null);
+    setIsFormVisible(true);
+  };
 
-      const [teachersResponse, classesResponse] = await Promise.all([
-        axios.get(teachersUrl),
-        axios.get(classesUrl),
-      ]);
+  const handleEditTeacher = (teacherData) => {
+    setCurrentTeacher(teacherData);
+    setIsFormVisible(true);
+  };
 
-      setAllClasses(classesResponse.data.classes);
-
-      return {
-        data: teachersResponse.data.teachers,
-        totalPages: teachersResponse.data.totalPages,
-      };
-    } catch (error) {
-      throw new Error("Error fetching data");
+  const handleDeleteTeacher = async (id) => {
+    if (window.confirm("Are you sure you want to delete this teacher?")) {
+      setIsLoading(true);
+      try {
+        await axios.delete(`${baseURL}/teachers/${id}`);
+        fetchTeachers();
+        toast.success("Teacher deleted successfully");
+      } catch (error) {
+        console.error("Error deleting teacher:", error);
+        toast.error("Error deleting the teacher!");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
-  const initialFormData = {
-    name: "",
-    gender: "",
-    dob: "",
-    email: "",
-    salary: "",
-    class: "",
+  const handleFormSubmit = async (formData) => {
+    setIsLoading(true);
+    try {
+      if (currentTeacher) {
+        await axios.put(`${baseURL}/teachers/${currentTeacher._id}`, formData);
+        toast.success("Teacher updated successfully");
+      } else {
+        await axios.post(`${baseURL}/teachers`, formData);
+        toast.success("New teacher created successfully");
+      }
+      fetchTeachers();
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      toast.error("Error submitting the form!");
+    } finally {
+      setIsFormVisible(false);
+      setIsLoading(false);
+    }
   };
 
-  const inputFields = [
-    {
-      label: "Teacher Name",
-      name: "name",
-      type: "text",
-      placeholder: "Enter teacher name",
-    },
-    {
-      label: "Gender",
-      name: "gender",
-      type: "select",
-      placeholder: "Choose Gender",
-      options: [
-        { value: "Male", label: "Male" },
-        { value: "Female", label: "Female" },
-      ],
-    },
-    {
-      label: "Date Of Birth",
-      name: "dob",
-      type: "date",
-      placeholder: "Enter date of birth",
-    },
-    {
-      label: "Email",
-      name: "email",
-      type: "text",
-      placeholder: "Enter Email",
-    },
-    {
-      label: "Salary",
-      name: "salary",
-      type: "number",
-      placeholder: "Enter Annual salary",
-    },
-    {
-      label: "Classes",
-      name: "class",
-      type: "select",
-      placeholder: "Select Class",
-      options: allClasses.map((classItem) => ({
-        value: classItem._id,
-        label: classItem.className,
-      })),
-    },
-  ];
+  const handleFormCancel = () => {
+    setIsFormVisible(false);
+  };
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
 
   return (
-    <>
-      <GenericManagementComponent
-        pageTitle={pageTitle}
-        columns={columns}
-        fetchDataFunction={fetchData}
-        fromPage="teachers"
-        initialFormData={initialFormData}
-        inputFields={inputFields}
-      />
-      <AnalyticsPage />
-    </>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4 text-gray-700">
+        Teacher Management
+      </h1>
+      {isLoading ? (
+        <p className="text-gray-600">Loading...</p>
+      ) : isFormVisible ? (
+        <FormComponent
+          modelSchema={teacherSchema}
+          formData={currentTeacher}
+          onSubmit={handleFormSubmit}
+          onCancel={handleFormCancel}
+          dynamicOptions={{
+            gender: [
+              { _id: "male", name: "Male" },
+              { _id: "female", name: "Female" },
+            ],
+            classes: classes,
+          }}
+        />
+      ) : (
+        <div>
+          <button
+            onClick={handleAddTeacher}
+            className="mb-4 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+          >
+            Add Teacher
+          </button>
+          <TableComponent
+            modelSchema={teacherSchema}
+            data={teachers}
+            onEdit={handleEditTeacher}
+            onDelete={handleDeleteTeacher}
+            dynamicOptions={{
+              gender: [
+                { _id: "male", name: "Male" },
+                { _id: "female", name: "Female" },
+              ],
+              classes: classes,
+            }}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            recordsPerPage={recordsPerPage}
+            onPageChange={handlePageChange}
+          />
+        </div>
+      )}
+    </div>
   );
-}
+};
 
-export default TeacherManagementPage;
+export default TeacherManagement;

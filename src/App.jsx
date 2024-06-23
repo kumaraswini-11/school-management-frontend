@@ -1,15 +1,16 @@
-import { SideBar } from "./components";
-import { Outlet } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+import AppRouter from "./router/AppRouter";
+import { DataProvider } from "./context/DataContext";
 
-function App() {
+const App = () => {
   return (
-    <div className="flex h-screen">
-      <SideBar />
-      <main className="flex-1 ml-4 mt-4">
-        <Outlet />
-      </main>
+    <div className="min-h-screen">
+      <DataProvider>
+        <AppRouter />
+        <Toaster position="top-right" reverseOrder={false} />
+      </DataProvider>
     </div>
   );
-}
+};
 
 export default App;
