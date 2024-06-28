@@ -11,9 +11,9 @@ const TableComponent = ({
   totalPages,
   onPageChange,
 }) => {
-  console.log("modelSchema :", modelSchema);
-  console.log("data : ", data);
-  console.log("dynamicOptions : ", dynamicOptions);
+  // console.log("modelSchema :", modelSchema);
+  // console.log("data : ", data);
+  // console.log("dynamicOptions : ", dynamicOptions);
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this item?")) {

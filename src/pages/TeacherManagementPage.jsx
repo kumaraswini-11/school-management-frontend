@@ -4,15 +4,19 @@ import toast from "react-hot-toast";
 import FormComponent from "../components/FormComponent";
 import TableComponent from "../components/TableComponent";
 import { useDataContext } from "../context/DataContext";
+import {
+  destructureContactDetails,
+  renamePropertyInArray,
+} from "../utils/helpers";
 
 const teacherSchema = [
   { label: "Name", name: "name", type: "text" },
   { label: "Date of Birth", name: "dob", type: "date" },
   { label: "Gender", name: "gender", type: "select" },
-  { label: "Email", name: "contactDetails.email", type: "email" },
-  { label: "Phone", name: "contactDetails.phone", type: "text" },
+  { label: "Email", name: "email", type: "email" },
+  { label: "Phone", name: "phone", type: "text" },
   { label: "Salary", name: "salary", type: "number" },
-  { label: "Classes", name: "classes", type: "select-multiple" },
+  { label: "Classes", name: "classes", type: "select" },
 ];
 
 const TeacherManagement = () => {
@@ -31,7 +35,9 @@ const TeacherManagement = () => {
         params: { page: currentPage, limit: recordsPerPage },
       });
 
-      setTeachers(response.data.data);
+      const modifyedResponse = destructureContactDetails(response.data.data);
+      renamePropertyInArray(modifyedResponse, "assignedClass", "classes");
+      setTeachers(modifyedResponse);
       setTotalPages(response.data.pagination.totalPages);
     } catch (error) {
       console.error("Error fetching teachers:", error);
@@ -113,8 +119,8 @@ const TeacherManagement = () => {
           onCancel={handleFormCancel}
           dynamicOptions={{
             gender: [
-              { _id: "male", name: "Male" },
-              { _id: "female", name: "Female" },
+              { _id: "Male", name: "Male" },
+              { _id: "Female", name: "Female" },
             ],
             classes: classes,
           }}
@@ -134,8 +140,8 @@ const TeacherManagement = () => {
             onDelete={handleDeleteTeacher}
             dynamicOptions={{
               gender: [
-                { _id: "male", name: "Male" },
-                { _id: "female", name: "Female" },
+                { _id: "Male", name: "Male" },
+                { _id: "Female", name: "Female" },
               ],
               classes: classes,
             }}

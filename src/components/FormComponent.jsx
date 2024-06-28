@@ -8,7 +8,7 @@ const FormComponent = ({
   formData,
   onSubmit,
   onCancel,
-  dynamicOptions,
+  dynamicOptions = {},
 }) => {
   const [formState, setFormState] = useState({ ...formData });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -47,8 +47,10 @@ const FormComponent = ({
             <Select
               label={label}
               name={name}
-              value={formState[name] || (type === "select-multiple" ? [] : "")}
-              options={dynamicOptions[name]}
+              selectedOptions={
+                formState[name] || (type === "select-multiple" ? [] : "")
+              }
+              allOptions={dynamicOptions[name] || []}
               multiple={type === "select-multiple"}
               onChange={
                 type === "select-multiple" ? handleMultiChange : handleChange

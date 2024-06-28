@@ -5,13 +5,14 @@ import "react-toastify/dist/ReactToastify.css";
 import FormComponent from "../components/FormComponent";
 import TableComponent from "../components/TableComponent";
 import { useDataContext } from "../context/DataContext";
+import { destructureContactDetails } from "../utils/helpers";
 
 const studentSchema = [
   { label: "Name", name: "name", type: "text" },
   { label: "Date of Birth", name: "dob", type: "date" },
   { label: "Gender", name: "gender", type: "select" },
-  { label: "Email", name: "contactDetails.email", type: "email" },
-  { label: "Phone", name: "contactDetails.phone", type: "text" },
+  { label: "Email", name: "email", type: "email" },
+  { label: "Phone", name: "phone", type: "text" },
   { label: "Fees Paid", name: "feesPaid", type: "number" },
   { label: "Class", name: "class", type: "select-multiple" },
 ];
@@ -25,25 +26,26 @@ const StudentManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const fetchStudents = useCallback(async () => {
+  const fetchStudents = async () => {
     setIsLoading(true);
     try {
       const response = await axios.get(`${baseURL}/students`, {
         params: { page: currentPage, limit: recordsPerPage },
       });
 
-      setStudents(response.data.data);
+      setStudents(destructureContactDetails(response.data.data));
       setTotalPages(response.data.pagination.totalPages);
     } catch (error) {
       console.error("Error fetching students:", error);
+      toast.error("Error fetching students!");
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, recordsPerPage]);
+  };
 
   useEffect(() => {
     fetchStudents();
-  }, [fetchStudents]);
+  }, [currentPage, recordsPerPage, baseURL]);
 
   const handleAddStudent = () => {
     setCurrentStudent(null);
@@ -114,8 +116,8 @@ const StudentManagement = () => {
           onCancel={handleFormCancel}
           dynamicOptions={{
             gender: [
-              { _id: "male", name: "Male" },
-              { _id: "female", name: "Female" },
+              { _id: "Male", name: "Male" },
+              { _id: "Female", name: "Female" },
             ],
             class: classes,
           }}
@@ -135,14 +137,13 @@ const StudentManagement = () => {
             onDelete={handleDeleteStudent}
             dynamicOptions={{
               gender: [
-                { _id: "male", name: "Male" },
-                { _id: "female", name: "Female" },
+                { _id: "Male", name: "Male" },
+                { _id: "Female", name: "Female" },
               ],
               class: classes,
             }}
             currentPage={currentPage}
             totalPages={totalPages}
-            recordsPerPage={recordsPerPage}
             onPageChange={handlePageChange}
           />
         </div>

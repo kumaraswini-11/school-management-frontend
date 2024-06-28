@@ -56,7 +56,7 @@ const ClassManagement = () => {
   const handleDeleteClass = async (id) => {
     setIsLoading(true);
     try {
-      await axios.delete(`${baseURL}/api/classes/${id}`);
+      await axios.delete(`${baseURL}/classes/${id}`);
       fetchClasses();
       toast.success("Class deleted successfully");
     } catch (error) {
@@ -71,10 +71,10 @@ const ClassManagement = () => {
     setIsLoading(true);
     try {
       if (currentClass) {
-        await axios.put(`${baseURL}/api/classes/${currentClass._id}`, formData);
+        await axios.put(`${baseURL}/classes/${currentClass._id}`, formData);
         toast.success("Class updated successfully");
       } else {
-        await axios.post(`${baseURL}/api/classes`, formData);
+        await axios.post(`${baseURL}/classes`, formData);
         toast.success("New class created successfully");
       }
       fetchClasses();
@@ -126,7 +126,6 @@ const ClassManagement = () => {
             dynamicOptions={{ teacher: teachers, students: students }}
             currentPage={currentPage}
             totalPages={totalPages}
-            recordsPerPage={recordsPerPage}
             onPageChange={handlePageChange}
           />
         </div>
