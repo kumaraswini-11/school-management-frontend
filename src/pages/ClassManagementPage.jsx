@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { Outlet } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useDataContext } from "../context/DataContext";
@@ -6,7 +7,7 @@ import FormComponent from "../components/FormComponent";
 import TableComponent from "../components/TableComponent";
 
 const classSchema = [
-  { label: "Class Name", name: "name", type: "text" },
+  { label: "Class Name", name: "name", type: "text", link: true },
   { label: "Year", name: "year", type: "number" },
   { label: "Teacher", name: "teacher", type: "select" },
   { label: "Student Fees", name: "studentFees", type: "number" },
@@ -130,6 +131,8 @@ const ClassManagement = () => {
           />
         </div>
       )}
+
+      <Outlet />
     </div>
   );
 };

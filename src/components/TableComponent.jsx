@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { getOptionName, getMultipleOptionNames } from "../utils/helpers";
 
 const TableComponent = ({
@@ -11,10 +12,6 @@ const TableComponent = ({
   totalPages,
   onPageChange,
 }) => {
-  // console.log("modelSchema :", modelSchema);
-  // console.log("data : ", data);
-  // console.log("dynamicOptions : ", dynamicOptions);
-
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this item?")) {
       onDelete(id);
@@ -43,19 +40,28 @@ const TableComponent = ({
         <tbody className="bg-white divide-y divide-gray-200">
           {data.map((item) => (
             <tr key={item._id}>
-              {modelSchema.map(({ name, type }) => (
+              {modelSchema.map(({ name, type, link }) => (
                 <td
                   key={name}
                   className="px-6 py-4 whitespace-nowrap text-sm text-gray-700"
                 >
-                  {type === "select"
-                    ? getOptionName(dynamicOptions[name], item[name])
-                    : type === "select-multiple"
-                      ? getMultipleOptionNames(
-                          dynamicOptions[name],
-                          item[name]
-                        ).join(", ")
-                      : item[name]}
+                  {link && name === "name" ? (
+                    <Link
+                      to={`/classes/${item._id}`}
+                      className="underline text-blue-600 hover:text-blue-900"
+                    >
+                      {item[name]}
+                    </Link>
+                  ) : type === "select" ? (
+                    getOptionName(dynamicOptions[name], item[name])
+                  ) : type === "select-multiple" ? (
+                    getMultipleOptionNames(
+                      dynamicOptions[name],
+                      item[name]
+                    ).join(", ")
+                  ) : (
+                    item[name]
+                  )}
                 </td>
               ))}
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

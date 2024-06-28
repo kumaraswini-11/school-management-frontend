@@ -1,27 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Line } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
 import { useDataContext } from "../context/DataContext";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
+import ChartComponent from "../components/ChartComponent";
 
 const options = {
   responsive: true,
@@ -115,7 +95,7 @@ const FinancialAnalyticsPage = () => {
     };
     return (
       <div className="h-96">
-        <Line options={options} data={chartData} />
+        <ChartComponent options={options} data={chartData} />
       </div>
     );
   };
